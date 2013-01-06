@@ -1,3 +1,9 @@
+<html>
+<head>
+    <title>Collage Example</title>
+</head>
+<body>
+
 <p>
     Speed:
     <a href=# onclick="g_delay = 0; return false;">fastest</a>
@@ -12,8 +18,13 @@
     <a href=# onclick="update_piece_size(1); return false;">smallest</a>
 </p>
 <p>
-    <span id=percentfull></span>% full
-    (<span id=pixelstogo></span> pixels to go)
+    <label>Goal: <input type="number" min="1" max="100" value="100" id="goal" style="width:3em;" onblur="g_goal = parseFloat(this.value) / 100; if(!iteration.running) iteration(); return false;" />%</label>
+</p>
+<p>
+    <span id=percentfull></span>% full (<span id=pixelstogo></span> pixels to go)
+</p>
+<p>
+    <label>Dropped piece(s): <span id="dropped">0</span></label>
 </p>
 
 <p>
@@ -104,7 +115,7 @@
     }
 
     var width = 800;
-    var height = 800;
+    var height = 600;
     var total_area = width * height;
     var filled_area = 0;
 
@@ -118,6 +129,9 @@
     var status_canvas = document.getElementById('status');
 
     g_max_rect_size = null;
+    g_dropped_node_count= 0;
+    g_delay = 100;
+    g_goal = 100;
 
     var update_piece_size = function(size)
     {
@@ -135,10 +149,10 @@
 
     var percentfull_el = document.getElementById('percentfull');
     var pixelstogo_el = document.getElementById('pixelstogo');
-
-    g_delay = 100;
+    var dropped_el = document.getElementById('dropped');
 
     var iteration = function() {
+        iteration.running = false;
         var color = random_color();
 
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
@@ -159,9 +173,17 @@
             filled_area += r.w * r.h;
             percentfull_el.innerHTML = ((filled_area / total_area) * 100).toFixed(6);
             pixelstogo_el.innerHTML = total_area - filled_area;
+        } else {
+            g_dropped_node_count++;
+            dropped_el.innerHTML = g_dropped_node_count;
         }
-        if(total_area - filled_area)
+        if(g_goal * total_area >= filled_area) {
             setTimeout(iteration, g_delay);
+            iteration.running = true;
+        }
     };
     setTimeout(iteration, 0);
 </script>
+
+</body>
+</html>
