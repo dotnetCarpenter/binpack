@@ -18,7 +18,7 @@
     <a href=# onclick="update_piece_size(1); return false;">smallest</a>
 </p>
 <p>
-    <label>Goal: <input type="number" min="1" max="100" value="100" id="goal" style="width:3em;" onblur="g_goal = parseFloat(this.value) / 100; if(!iteration.running) iteration(); return false;" />%</label>
+    <label>Goal: <input autofocus="autofocus" type="number" min="1" max="100" value="100" id="goal" style="width:3em;" onblur="g_goal = parseFloat(this.value) / 100; if(!iteration.running) iteration(); return false;" />%</label>
 </p>
 <p>
     <span id=percentfull></span>% full (<span id=pixelstogo></span> pixels to go)
@@ -132,6 +132,7 @@
     g_dropped_node_count= 0;
     g_delay = 100;
     g_goal = 100;
+    g_padding = 2;
 
     var update_piece_size = function(size)
     {
@@ -142,10 +143,7 @@
     update_piece_size(25);
 
     var status_ctx = status_canvas.getContext('2d');
-
     var ctx = canvas.getContext('2d');
-
-    var timeout_id = null;
 
     var percentfull_el = document.getElementById('percentfull');
     var pixelstogo_el = document.getElementById('pixelstogo');
@@ -156,11 +154,9 @@
         var color = random_color();
 
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
-            Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size),
-            Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size));
+            Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size)+g_padding,
+            Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size)+g_padding);
 
-        status_ctx.fillStyle = '#fff';
-        status_ctx.fillRect(0, 0, g_max_rect_size, g_max_rect_size);
         status_ctx.fillStyle = color;
         status_ctx.fillRect(0, 0, rect.w, rect.h);
 
@@ -169,7 +165,7 @@
         {
             var r = node.rect;
             ctx.fillStyle = random_color();
-            ctx.fillRect(r.x, r.y, r.w, r.h);
+            ctx.fillRect(r.x, r.y, r.w-g_padding, r.h-g_padding);
             filled_area += r.w * r.h;
             percentfull_el.innerHTML = ((filled_area / total_area) * 100).toFixed(6);
             pixelstogo_el.innerHTML = total_area - filled_area;
@@ -177,10 +173,12 @@
             g_dropped_node_count++;
             dropped_el.innerHTML = g_dropped_node_count;
         }
-        if(g_goal * total_area >= filled_area) {
-            setTimeout(iteration, g_delay);
+        if(g_goal * total_area >= filled_area) {            
             iteration.running = true;
-        }
+            status_ctx.fillStyle = '#fff';
+            status_ctx.fillRect(0, 0, g_max_rect_size, g_max_rect_size);
+            setTimeout(iteration, g_delay);
+        }        
     };
     setTimeout(iteration, 0);
 </script>
