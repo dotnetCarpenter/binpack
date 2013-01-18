@@ -82,6 +82,9 @@
         this.left = new Node();
         this.right = new Node();
 
+        //debug stuff
+        Node.prototype.nodeCounter++;
+
         var width_diff = this.rect.w - rect.w;
         var height_diff = this.rect.h - rect.h;
 
@@ -103,6 +106,9 @@
         return this.left.insert_rect(rect);
     }
 
+    //debug stuff
+    Node.prototype.nodeCounter = 0;
+
     var random_color = function()
     {
         var color = [0, 0, 0]
@@ -118,6 +124,7 @@
     var height = 600;
     var total_area = width * height;
     var filled_area = 0;
+    var iteration_counter = 0;
 
     var start_node = new Node();
     start_node.rect = new Rect(0, 0, width, height);
@@ -152,6 +159,7 @@
     var iteration = function() {
         iteration.running = false;
         var color = random_color();
+        iteration_counter++;
 
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
             Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size)+g_padding,
@@ -160,9 +168,17 @@
         status_ctx.fillStyle = color;
         status_ctx.fillRect(0, 0, rect.w, rect.h);
 
-        var node = start_node.insert_rect(rect);
+        var node = start_node.insert_rect(rect);            
         if(node)
         {
+            //debug stuff
+            if(console && console.log && node.nodeCounter > 0){
+                console.log(node.nodeCounter);
+                Node.prototype.nodeCounter = 0;
+                //if(iteration_counter % 22 === 0)
+                //    console.clear();
+            }
+
             var r = node.rect;
             ctx.fillStyle = random_color();
             ctx.fillRect(r.x, r.y, r.w-g_padding, r.h-g_padding);
